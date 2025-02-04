@@ -1,0 +1,54 @@
+---> File name  :  controller/usercontroller.js
+
+var tbl_name = require("../model/usermodel");
+
+exports.insert = async(req,res) => {
+	tbl_name.create(req.body);
+	res.status(200).json({
+		status:"success"
+	})
+}
+
+exports.get_data = async(req,res) => {
+	var data = await tbl_name.find()
+	res.status(200).json({
+		status:"success",
+		data
+	})
+}
+
+
+---> File name :  model/usermodel.js
+
+var mongoose = require('mongoos');
+
+var userSchema = new mongoose.Schema({
+	name:{
+		type: String
+	},
+	email{
+		type: String
+	},
+	password{
+		type: String
+	}
+})
+module.exports = mongoose.model("tbl_name",userSchema);
+
+
+---> File name :  bin/www
+
+mongoose.connect('mongodb://localhost:27017/database_name');
+
+
+---> File name :  routs/index.js
+
+var express = require('express');
+var router = express.Router();
+var database_name = require('../controller/usercontroller');
+
+router.post('/',database_name.insert);
+router.get('/',database_name.get_data);
+
+
+module.exports = router;
