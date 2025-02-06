@@ -1,4 +1,5 @@
 var user = require("../model/usermodel");
+var login_status = 0;
 
 exports.insert = async(req,res)=> {
     user.create(req.body);
@@ -8,26 +9,28 @@ exports.insert = async(req,res)=> {
 }
 
 exports.get_data = async(req,res)=> {
-    var limit = 3;
-    var page_no = req.query.page_no;
-    if(page_no == undefined){
-        page_no=1;
-    }
-    var start = (page_no-1)*limit;
-    var total_rec = await user.find().countDocuments();
-    var total_page = Math.ceil(total_rec/limit);
+    // var limit = 3;
+    // var page_no = req.query.page_no;
+    // if(page_no == undefined){
+    //     page_no=1;
+    // }
+    // var start = (page_no-1)*limit;
+    // var total_rec = await user.find().countDocuments();
+    // var total_page = Math.ceil(total_rec/limit);
 
-    var data = await user.find().skip(start).limit(limit);
+    // var data = await user.find().skip(start).limit(limit);
     // var data = await user.find().countDocuments();
     // var data = await user.find().skip(1);
     // var data = await user.find().limit(3);
     // var data = await user.find().select("email").select("password");
 
+    var data = await user.find();
+
     res.status(200).json({
         status: "success",
         data,
-        page_no,
-        total_page
+        // page_no,
+        // total_page
     })
 }
 
@@ -56,4 +59,33 @@ exports.delete_data = async(req,res)=> {
         status: "success",
         data
     })
+}
+
+exports.login = async(req,res) => {
+    var data = await user.find({"email":req.body.email});
+    if(login_status==0)
+    {
+        if(data.length==1)
+        {
+            if(data[0].password==req.body.password)
+            {
+                login_status = 1;
+                res.status(200).json({
+                    status:"login success"
+                })
+            }else{
+                res.status(200).json({
+                    status:"chack your email or password"
+                })
+            }
+        }else{
+            res.status(200).json({
+                status:"check your email or password"
+            })
+        }
+    }else{
+        res.status(200).json({
+            status:"user is already login"
+        })
+    }
 }
